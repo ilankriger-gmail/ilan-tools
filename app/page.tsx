@@ -10,11 +10,18 @@ const tools = [
     color: 'from-orange-500 to-pink-500',
   },
   {
-    name: '🧠 Second Brain',
-    description: 'Seu banco de conhecimento organizado',
-    href: '/brain',
-    color: 'from-purple-500 to-indigo-500',
-    soon: true,
+    name: '🚪 Portal',
+    description: 'Portal O Moço do Te Amo',
+    href: 'https://portal-omocodoteamo.vercel.app',
+    external: true,
+    color: 'from-green-500 to-teal-500',
+  },
+  {
+    name: '🎬 YouTube Analyzer',
+    description: 'Analisar vídeos e canais',
+    href: 'https://youtube-analyzer-eosin.vercel.app',
+    external: true,
+    color: 'from-red-500 to-orange-500',
   },
   {
     name: '🌊 ViralWave',
@@ -29,6 +36,13 @@ const tools = [
     href: 'https://comunidade.omocodoteamo.com.br/admin',
     external: true,
     color: 'from-pink-500 to-red-500',
+  },
+  {
+    name: '🧠 Second Brain',
+    description: 'Seu banco de conhecimento organizado',
+    href: '/brain',
+    color: 'from-purple-500 to-indigo-500',
+    soon: true,
   },
 ];
 

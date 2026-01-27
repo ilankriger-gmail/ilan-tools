@@ -70,6 +70,7 @@ export default function Dashboard() {
     { name: '📊 Supabase', href: 'https://supabase.com/dashboard/project/gsxanzgwstlpfvnqcmiu' },
     { name: '🚀 Vercel', href: 'https://vercel.com/dashboard' },
     { name: '🌊 ViralWave', href: 'https://viralwave-web.vercel.app' },
+    { name: '🎬 YouTube Analyzer', href: 'https://youtube-analyzer.vercel.app' },
   ];
 
   const BASE = 'https://comunidade.omocodoteamo.com.br';

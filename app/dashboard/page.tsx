@@ -3,32 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const SUPABASE_URL = 'https://gsxanzgwstlpfvnqcmiu.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzeGFuemd3c3RscGZ2bnFjbWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NjYyMDIsImV4cCI6MjA4MzI0MjIwMn0.OapNhZJbbeH0eEJWIU_zg4ihEvtxSC9rAG-dLBQCmvE';
-
-async function query(table: string, options: any = {}) {
-  let url = `${SUPABASE_URL}/rest/v1/${table}?`;
-  if (options.select) url += `select=${options.select}&`;
-  if (options.filter) url += options.filter + '&';
-  if (options.order) url += `order=${options.order}&`;
-  if (options.limit) url += `limit=${options.limit}&`;
-
-  try {
-    const res = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        Prefer: options.count ? 'count=exact' : '',
-      },
-    });
-    const data = await res.json();
-    const count = res.headers.get('content-range')?.split('/')[1];
-    return { data, count: count ? parseInt(count) : (Array.isArray(data) ? data.length : 0) };
-  } catch (e) {
-    return { data: [], count: 0 };
-  }
-}
-
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -44,28 +18,23 @@ export default function Dashboard() {
 
   const loadAll = async () => {
     setLoading(true);
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-    const [resgates, participacoes, bugs, posts, users, hearts, comments] = await Promise.all([
-      query('reward_claims', { filter: 'status=eq.pending', select: 'id' }),
-      query('challenge_participants', { filter: 'status=eq.pending', select: 'id' }),
-      query('bug_reports', { filter: 'status=eq.open', select: 'id' }),
-      query('posts', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
-      query('profiles', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
-      query('post_likes', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
-      query('comments', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
-    ]);
-
-    setStats({
-      resgates: resgates.count,
-      participacoes: participacoes.count,
-      bugs: bugs.count,
-      posts24h: posts.count,
-      users24h: users.count,
-      hearts24h: hearts.count,
-      comments24h: comments.count,
-    });
-    setLastUpdate(new Date());
+    try {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      
+      setStats({
+        resgates: data.resgates || 0,
+        participacoes: data.participacoes || 0,
+        bugs: data.bugs || 0,
+        posts24h: data.posts24h || 0,
+        users24h: data.users24h || 0,
+        hearts24h: data.hearts24h || 0,
+        comments24h: data.comments24h || 0,
+      });
+      setLastUpdate(new Date());
+    } catch (e) {
+      console.error('Failed to load stats:', e);
+    }
     setLoading(false);
   };
 

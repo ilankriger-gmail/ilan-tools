@@ -102,12 +102,31 @@ export default function Dashboard() {
     },
   ];
 
-  const quickLinks = [
-    { name: '🏠 Admin', href: 'https://comunidade.omocodoteamo.com.br/admin' },
-    { name: '🌊 ViralWave', href: 'https://viralwave-web.vercel.app' },
+  // Links do Admin em ordem alfabética
+  const adminLinks = [
+    { name: '📢 Anúncios', href: 'https://comunidade.omocodoteamo.com.br/admin/anuncios' },
+    { name: '📊 Analytics', href: 'https://comunidade.omocodoteamo.com.br/admin/analytics' },
+    { name: '🐛 Bugs', href: 'https://comunidade.omocodoteamo.com.br/admin/bugs' },
+    { name: '⚙️ Configurações', href: 'https://comunidade.omocodoteamo.com.br/admin/configuracoes' },
+    { name: '🎯 Desafios', href: 'https://comunidade.omocodoteamo.com.br/admin/desafios' },
+    { name: '✉️ Emails', href: 'https://comunidade.omocodoteamo.com.br/admin/emails' },
+    { name: '❤️ Engajamento', href: 'https://comunidade.omocodoteamo.com.br/admin/engajamento' },
+    { name: '📅 Eventos', href: 'https://comunidade.omocodoteamo.com.br/admin/eventos' },
+    { name: '📄 Landing Pages', href: 'https://comunidade.omocodoteamo.com.br/admin/landing-pages' },
+    { name: '📈 Leads NPS', href: 'https://comunidade.omocodoteamo.com.br/admin/leads' },
+    { name: '🔔 Notificações', href: 'https://comunidade.omocodoteamo.com.br/admin/notificacoes' },
+    { name: '🏠 Painel Admin', href: 'https://comunidade.omocodoteamo.com.br/admin' },
+    { name: '📝 Posts', href: 'https://comunidade.omocodoteamo.com.br/admin/posts' },
+    { name: '🎁 Prêmios', href: 'https://comunidade.omocodoteamo.com.br/admin/premios' },
+    { name: '💰 Resgates', href: 'https://comunidade.omocodoteamo.com.br/admin/resgates' },
+    { name: '👥 Usuários', href: 'https://comunidade.omocodoteamo.com.br/admin/usuarios' },
+  ];
+
+  const externalLinks = [
+    { name: '📱 App Store', href: 'https://appstoreconnect.apple.com' },
     { name: '📊 Supabase', href: 'https://supabase.com/dashboard/project/gsxanzgwstlpfvnqcmiu' },
     { name: '🚀 Vercel', href: 'https://vercel.com/dashboard' },
-    { name: '📱 App Store', href: 'https://appstoreconnect.apple.com' },
+    { name: '🌊 ViralWave', href: 'https://viralwave-web.vercel.app' },
   ];
 
   return (
@@ -160,11 +179,29 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Quick Links */}
-        <div className="bg-white/5 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-4">🔗 Acesso Rápido</h2>
+        {/* Admin Links */}
+        <div className="bg-white/5 rounded-2xl p-6 mb-4">
+          <h2 className="text-xl font-bold text-white mb-4">🔧 Admin Comunidade</h2>
           <div className="flex flex-wrap gap-3">
-            {quickLinks.map((link) => (
+            {adminLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all text-sm"
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* External Links */}
+        <div className="bg-white/5 rounded-2xl p-6">
+          <h2 className="text-xl font-bold text-white mb-4">🔗 Externos</h2>
+          <div className="flex flex-wrap gap-3">
+            {externalLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}

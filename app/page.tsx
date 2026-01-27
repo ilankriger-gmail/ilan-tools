@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const tools = [
+const tools: { name: string; description: string; href: string; color: string; external?: boolean; soon?: boolean }[] = [
   {
     name: '🌅 Dashboard Matinal',
     description: 'Tudo que precisa de atenção num só lugar',

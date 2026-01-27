@@ -39,10 +39,9 @@ const tools = [
   },
   {
     name: '🧠 Second Brain',
-    description: 'Seu banco de conhecimento organizado',
+    description: '630 notas organizadas do Apple Notes',
     href: '/brain',
     color: 'from-purple-500 to-indigo-500',
-    soon: true,
   },
 ];
 

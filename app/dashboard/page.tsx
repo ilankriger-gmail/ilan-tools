@@ -4,122 +4,95 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 const SUPABASE_URL = 'https://gsxanzgwstlpfvnqcmiu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzeGFuemd3c3RscGZ2bnFjbWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NjYyMDIsImV4cCI6MjA4MzI0MjIwMn0.OapNhZJbbeH0eEJWIU_zg4ihEvtxSC9rAG-dLBQCmvE';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzeGFuemd3c3RscGZ2bnFjbWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NjYyMDIsImV4cCI6MjA4MzI0MjIwMn0.OapNhZJbbeH0eEJWIU_zg4ihEvtxSC9rAG-dLBQCmvE';
 
-interface Stats {
-  pendingClaims: number;
-  pendingParticipations: number;
-  pendingBugs: number;
-  todayPosts: number;
-  totalUsers: number;
-  loading: boolean;
-  error: string | null;
-}
+async function query(table: string, options: any = {}) {
+  let url = `${SUPABASE_URL}/rest/v1/${table}?`;
+  if (options.select) url += `select=${options.select}&`;
+  if (options.filter) url += options.filter + '&';
+  if (options.order) url += `order=${options.order}&`;
+  if (options.limit) url += `limit=${options.limit}&`;
 
-async function fetchSupabase(table: string, query: string = '') {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-    },
-  });
-  return res.json();
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Prefer: options.count ? 'count=exact' : '',
+      },
+    });
+    const data = await res.json();
+    const count = res.headers.get('content-range')?.split('/')[1];
+    return { data, count: count ? parseInt(count) : (Array.isArray(data) ? data.length : 0) };
+  } catch (e) {
+    return { data: [], count: 0 };
+  }
 }
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<Stats>({
-    pendingClaims: 0,
-    pendingParticipations: 0,
-    pendingBugs: 0,
-    todayPosts: 0,
-    totalUsers: 0,
-    loading: true,
-    error: null,
-  });
+  const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [stats, setStats] = useState({
+    resgates: 0,
+    participacoes: 0,
+    bugs: 0,
+    posts24h: 0,
+    users24h: 0,
+    hearts24h: 0,
+    comments24h: 0,
+  });
 
-  const loadData = async () => {
-    try {
-      setStats(s => ({ ...s, loading: true }));
-      
-      // Fetch all data in parallel
-      const [claims, participations, bugs, users] = await Promise.all([
-        fetchSupabase('reward_claims', 'status=eq.pending&select=id'),
-        fetchSupabase('challenge_participants', 'status=eq.pending&select=id'),
-        fetchSupabase('bug_reports', 'status=eq.open&select=id'),
-        fetchSupabase('profiles', 'select=id'),
-      ]);
+  const loadAll = async () => {
+    setLoading(true);
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-      setStats({
-        pendingClaims: Array.isArray(claims) ? claims.length : 0,
-        pendingParticipations: Array.isArray(participations) ? participations.length : 0,
-        pendingBugs: Array.isArray(bugs) ? bugs.length : 0,
-        todayPosts: 0, // Would need date filter
-        totalUsers: Array.isArray(users) ? users.length : 0,
-        loading: false,
-        error: null,
-      });
-      setLastUpdate(new Date());
-    } catch (err) {
-      setStats(s => ({ ...s, loading: false, error: 'Erro ao carregar dados' }));
-    }
+    const [resgates, participacoes, bugs, posts, users, hearts, comments] = await Promise.all([
+      query('reward_claims', { filter: 'status=eq.pending', select: 'id' }),
+      query('challenge_participants', { filter: 'status=eq.pending', select: 'id' }),
+      query('bug_reports', { filter: 'status=eq.open', select: 'id' }),
+      query('posts', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
+      query('profiles', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
+      query('post_likes', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
+      query('comments', { filter: `created_at=gte.${yesterday}`, select: 'id' }),
+    ]);
+
+    setStats({
+      resgates: resgates.count,
+      participacoes: participacoes.count,
+      bugs: bugs.count,
+      posts24h: posts.count,
+      users24h: users.count,
+      hearts24h: hearts.count,
+      comments24h: comments.count,
+    });
+    setLastUpdate(new Date());
+    setLoading(false);
   };
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 5 * 60 * 1000); // 5 min
+    loadAll();
+    const interval = setInterval(loadAll, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const cards = [
-    {
-      title: '💰 Resgates Pendentes',
-      value: stats.pendingClaims,
-      href: 'https://comunidade.omocodoteamo.com.br/admin/resgates',
-      alert: stats.pendingClaims > 0,
-      color: 'from-yellow-500 to-orange-500',
-    },
-    {
-      title: '🏆 Desafios p/ Aprovar',
-      value: stats.pendingParticipations,
-      href: 'https://comunidade.omocodoteamo.com.br/admin/desafios',
-      alert: stats.pendingParticipations > 0,
-      color: 'from-blue-500 to-purple-500',
-    },
-    {
-      title: '🐛 Bugs Abertos',
-      value: stats.pendingBugs,
-      href: 'https://comunidade.omocodoteamo.com.br/admin/bugs',
-      alert: stats.pendingBugs > 0,
-      color: 'from-red-500 to-pink-500',
-    },
-    {
-      title: '👥 Total Usuários',
-      value: stats.totalUsers,
-      href: 'https://comunidade.omocodoteamo.com.br/admin/usuarios',
-      alert: false,
-      color: 'from-green-500 to-teal-500',
-    },
-  ];
-
   // Links do Admin em ordem alfabética
   const adminLinks = [
-    { name: '📢 Anúncios', href: 'https://comunidade.omocodoteamo.com.br/admin/anuncios' },
-    { name: '📊 Analytics', href: 'https://comunidade.omocodoteamo.com.br/admin/analytics' },
-    { name: '🐛 Bugs', href: 'https://comunidade.omocodoteamo.com.br/admin/bugs' },
-    { name: '⚙️ Configurações', href: 'https://comunidade.omocodoteamo.com.br/admin/configuracoes' },
-    { name: '🎯 Desafios', href: 'https://comunidade.omocodoteamo.com.br/admin/desafios' },
-    { name: '✉️ Emails', href: 'https://comunidade.omocodoteamo.com.br/admin/emails' },
-    { name: '❤️ Engajamento', href: 'https://comunidade.omocodoteamo.com.br/admin/engajamento' },
-    { name: '📅 Eventos', href: 'https://comunidade.omocodoteamo.com.br/admin/eventos' },
-    { name: '📄 Landing Pages', href: 'https://comunidade.omocodoteamo.com.br/admin/landing-pages' },
-    { name: '📈 Leads NPS', href: 'https://comunidade.omocodoteamo.com.br/admin/leads' },
-    { name: '🔔 Notificações', href: 'https://comunidade.omocodoteamo.com.br/admin/notificacoes' },
-    { name: '🏠 Painel Admin', href: 'https://comunidade.omocodoteamo.com.br/admin' },
-    { name: '📝 Posts', href: 'https://comunidade.omocodoteamo.com.br/admin/posts' },
-    { name: '🎁 Prêmios', href: 'https://comunidade.omocodoteamo.com.br/admin/premios' },
-    { name: '💰 Resgates', href: 'https://comunidade.omocodoteamo.com.br/admin/resgates' },
-    { name: '👥 Usuários', href: 'https://comunidade.omocodoteamo.com.br/admin/usuarios' },
+    { name: '📢 Anúncios', href: '/admin/anuncios' },
+    { name: '📊 Analytics', href: '/admin/analytics' },
+    { name: '🐛 Bugs', href: '/admin/bugs' },
+    { name: '⚙️ Configurações', href: '/admin/configuracoes' },
+    { name: '🎯 Desafios', href: '/admin/desafios' },
+    { name: '✉️ Emails', href: '/admin/emails' },
+    { name: '❤️ Engajamento', href: '/admin/engajamento' },
+    { name: '📅 Eventos', href: '/admin/eventos' },
+    { name: '📄 Landing Pages', href: '/admin/landing-pages' },
+    { name: '📈 Leads NPS', href: '/admin/leads' },
+    { name: '🔔 Notificações', href: '/admin/notificacoes' },
+    { name: '🏠 Painel', href: '/admin' },
+    { name: '📝 Posts', href: '/admin/posts' },
+    { name: '🎁 Prêmios', href: '/admin/premios' },
+    { name: '💰 Resgates', href: '/admin/resgates' },
+    { name: '👥 Usuários', href: '/admin/usuarios' },
   ];
 
   const externalLinks = [
@@ -129,68 +102,83 @@ export default function Dashboard() {
     { name: '🌊 ViralWave', href: 'https://viralwave-web.vercel.app' },
   ];
 
+  const BASE = 'https://comunidade.omocodoteamo.com.br';
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-6">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <Link href="/" className="text-gray-400 hover:text-white text-sm mb-2 block">
-              ← Voltar
-            </Link>
-            <h1 className="text-4xl font-bold text-white">🌅 Dashboard Matinal</h1>
-            <p className="text-gray-400 mt-1">
-              Atualizado: {lastUpdate.toLocaleTimeString('pt-BR')}
-            </p>
-          </div>
-          <button
-            onClick={loadData}
-            disabled={stats.loading}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all"
-          >
-            {stats.loading ? '⏳' : '🔄'} Atualizar
-          </button>
+        <div className="text-center mb-8">
+          <Link href="/" className="text-gray-400 hover:text-white text-sm">← Voltar</Link>
+          <h1 className="text-4xl font-bold mt-2">☀️ Bom dia, Ilan!</h1>
+          <p className="text-gray-400 mt-1">
+            {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
         </div>
 
         {/* Alert Banner */}
-        {stats.pendingClaims > 0 && (
+        {stats.resgates > 0 && (
           <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl animate-pulse">
-            <p className="text-red-400 font-bold text-lg">
-              ⚠️ {stats.pendingClaims} resgate(s) aguardando aprovação!
+            <p className="text-red-400 font-bold text-lg text-center">
+              ⚠️ {stats.resgates} resgate(s) pendente(s)!
             </p>
           </div>
         )}
 
-        {/* Stats Cards */}
+        {/* Status Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {cards.map((card) => (
-            <a
-              key={card.title}
-              href={card.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`relative p-6 rounded-2xl bg-gradient-to-br ${card.color} transform hover:scale-105 transition-all duration-200 ${card.alert ? 'ring-4 ring-white/50 animate-pulse' : ''}`}
-            >
-              <p className="text-white/80 text-sm mb-1">{card.title}</p>
-              <p className="text-4xl font-bold text-white">
-                {stats.loading ? '...' : card.value}
-              </p>
-            </a>
-          ))}
+          <a href={`${BASE}/admin/resgates`} target="_blank" rel="noopener noreferrer"
+             className={`p-6 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 ${stats.resgates > 0 ? 'ring-4 ring-white/50 animate-pulse' : ''}`}>
+            <p className="text-white/80 text-sm">💰 Resgates</p>
+            <p className="text-4xl font-bold text-white">{loading ? '...' : stats.resgates}</p>
+          </a>
+          <a href={`${BASE}/admin/desafios`} target="_blank" rel="noopener noreferrer"
+             className={`p-6 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 ${stats.participacoes > 0 ? 'ring-2 ring-yellow-400' : ''}`}>
+            <p className="text-white/80 text-sm">🏆 Participações</p>
+            <p className="text-4xl font-bold text-white">{loading ? '...' : stats.participacoes}</p>
+          </a>
+          <a href={`${BASE}/admin/bugs`} target="_blank" rel="noopener noreferrer"
+             className={`p-6 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 ${stats.bugs > 0 ? 'ring-2 ring-orange-400' : ''}`}>
+            <p className="text-white/80 text-sm">🐛 Bugs</p>
+            <p className="text-4xl font-bold text-white">{loading ? '...' : stats.bugs}</p>
+          </a>
+          <a href={`${BASE}/admin/posts`} target="_blank" rel="noopener noreferrer"
+             className="p-6 rounded-xl bg-gradient-to-br from-green-500 to-teal-500">
+            <p className="text-white/80 text-sm">📝 Posts 24h</p>
+            <p className="text-4xl font-bold text-white">{loading ? '...' : stats.posts24h}</p>
+          </a>
+        </div>
+
+        {/* Métricas 24h */}
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-6">
+          <h2 className="text-xl font-semibold mb-4">📊 Métricas (Últimas 24h)</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-400">{loading ? '-' : stats.users24h}</div>
+              <div className="text-gray-400 text-sm">Novos Usuários</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-400">{loading ? '-' : stats.posts24h}</div>
+              <div className="text-gray-400 text-sm">Novos Posts</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-red-400">{loading ? '-' : stats.hearts24h}</div>
+              <div className="text-gray-400 text-sm">Corações Dados</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-yellow-400">{loading ? '-' : stats.comments24h}</div>
+              <div className="text-gray-400 text-sm">Comentários</div>
+            </div>
+          </div>
         </div>
 
         {/* Admin Links */}
-        <div className="bg-white/5 rounded-2xl p-6 mb-4">
-          <h2 className="text-xl font-bold text-white mb-4">🔧 Admin Comunidade</h2>
-          <div className="flex flex-wrap gap-3">
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-4">
+          <h2 className="text-xl font-semibold mb-4">🔧 Admin Comunidade</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {adminLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all text-sm"
-              >
+              <a key={link.name} href={`${BASE}${link.href}`} target="_blank" rel="noopener noreferrer"
+                 className="px-3 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all text-sm text-center">
                 {link.name}
               </a>
             ))}
@@ -198,17 +186,12 @@ export default function Dashboard() {
         </div>
 
         {/* External Links */}
-        <div className="bg-white/5 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-4">🔗 Externos</h2>
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <h2 className="text-xl font-semibold mb-4">🔗 Externos</h2>
           <div className="flex flex-wrap gap-3">
             {externalLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all"
-              >
+              <a key={link.name} href={link.href} target="_blank" rel="noopener noreferrer"
+                 className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg transition-all">
                 {link.name}
               </a>
             ))}
@@ -216,8 +199,11 @@ export default function Dashboard() {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          Atualiza automaticamente a cada 5 minutos • Feito com ❤️ pelo Theo
+        <div className="text-center mt-6 text-gray-500 text-sm">
+          Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+          <button onClick={loadAll} disabled={loading} className="ml-4 text-purple-400 hover:text-purple-300">
+            {loading ? '⏳' : '🔄'} Atualizar
+          </button>
         </div>
       </div>
     </main>

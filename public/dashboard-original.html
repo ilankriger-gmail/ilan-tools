@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>☀️ Dashboard Matinal - Arena Te Amo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    }
+    .pulse-alert { animation: pulse-glow 2s infinite; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+  <div class="max-w-4xl mx-auto p-6">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold mb-2">☀️ Bom dia, Ilan!</h1>
+      <p class="text-gray-400" id="datetime">Carregando...</p>
+    </div>
+
+    <!-- Status Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      
+      <!-- Resgates Pendentes -->
+      <div id="card-resgates" class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            💰 Resgates Pendentes
+          </h2>
+          <span id="badge-resgates" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm">
+            Carregando...
+          </span>
+        </div>
+        <div id="content-resgates" class="text-gray-400">
+          Buscando...
+        </div>
+        <a href="https://comunidade.omocodoteamo.com.br/admin/resgates" target="_blank"
+           class="mt-4 inline-block text-purple-400 hover:text-purple-300 text-sm">
+          Ver todos →
+        </a>
+      </div>
+
+      <!-- Participações Pendentes -->
+      <div id="card-participacoes" class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            🏆 Participações
+          </h2>
+          <span id="badge-participacoes" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm">
+            Carregando...
+          </span>
+        </div>
+        <div id="content-participacoes" class="text-gray-400">
+          Buscando...
+        </div>
+        <a href="https://comunidade.omocodoteamo.com.br/admin" target="_blank"
+           class="mt-4 inline-block text-purple-400 hover:text-purple-300 text-sm">
+          Ver no admin →
+        </a>
+      </div>
+
+      <!-- Bugs Reportados -->
+      <div id="card-bugs" class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            🐛 Bugs Reportados
+          </h2>
+          <span id="badge-bugs" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm">
+            Carregando...
+          </span>
+        </div>
+        <div id="content-bugs" class="text-gray-400">
+          Buscando...
+        </div>
+        <a href="https://comunidade.omocodoteamo.com.br/admin/bugs" target="_blank"
+           class="mt-4 inline-block text-purple-400 hover:text-purple-300 text-sm">
+          Ver bugs →
+        </a>
+      </div>
+
+      <!-- Posts para Moderar -->
+      <div id="card-posts" class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            📝 Posts Novos
+          </h2>
+          <span id="badge-posts" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm">
+            Carregando...
+          </span>
+        </div>
+        <div id="content-posts" class="text-gray-400">
+          Buscando...
+        </div>
+        <a href="https://comunidade.omocodoteamo.com.br/admin/posts" target="_blank"
+           class="mt-4 inline-block text-purple-400 hover:text-purple-300 text-sm">
+          Moderar →
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Métricas Rápidas -->
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-8">
+      <h2 class="text-xl font-semibold mb-4">📊 Métricas (Últimas 24h)</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center">
+          <div id="metric-users" class="text-3xl font-bold text-green-400">-</div>
+          <div class="text-gray-400 text-sm">Novos Usuários</div>
+        </div>
+        <div class="text-center">
+          <div id="metric-posts" class="text-3xl font-bold text-blue-400">-</div>
+          <div class="text-gray-400 text-sm">Novos Posts</div>
+        </div>
+        <div class="text-center">
+          <div id="metric-hearts" class="text-3xl font-bold text-red-400">-</div>
+          <div class="text-gray-400 text-sm">Corações Dados</div>
+        </div>
+        <div class="text-center">
+          <div id="metric-comments" class="text-3xl font-bold text-yellow-400">-</div>
+          <div class="text-gray-400 text-sm">Comentários</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+      <h2 class="text-xl font-semibold mb-4">🔗 Links Rápidos</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <a href="https://comunidade.omocodoteamo.com.br/admin" target="_blank"
+           class="gradient-bg text-center py-3 px-4 rounded-lg hover:opacity-90 transition">
+          🏠 Admin
+        </a>
+        <a href="https://viralwave-web.vercel.app" target="_blank"
+           class="gradient-bg text-center py-3 px-4 rounded-lg hover:opacity-90 transition">
+          🌊 ViralWave
+        </a>
+        <a href="https://supabase.com/dashboard" target="_blank"
+           class="gradient-bg text-center py-3 px-4 rounded-lg hover:opacity-90 transition">
+          🗄️ Supabase
+        </a>
+        <a href="https://vercel.com/dashboard" target="_blank"
+           class="gradient-bg text-center py-3 px-4 rounded-lg hover:opacity-90 transition">
+          ▲ Vercel
+        </a>
+      </div>
+    </div>
+
+    <!-- Last Update -->
+    <div class="text-center mt-6 text-gray-500 text-sm">
+      <span id="last-update">Última atualização: -</span>
+      <button onclick="loadAll()" class="ml-4 text-purple-400 hover:text-purple-300">
+        🔄 Atualizar
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Supabase Config
+    const SUPABASE_URL = 'https://gsxanzgwstlpfvnqcmiu.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzeGFuemd3c3RscGZ2bnFjbWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc4MjcxMDQsImV4cCI6MjA1MzQwMzEwNH0.VMf_ZECth7YK8d9G0ZMzGvNOoIh9Yy9Yq7Goy3HNPhg';
+
+    // Update datetime
+    function updateDateTime() {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      };
+      document.getElementById('datetime').textContent = now.toLocaleDateString('pt-BR', options);
+    }
+
+    // Supabase query helper
+    async function query(table, options = {}) {
+      let url = `${SUPABASE_URL}/rest/v1/${table}?`;
+      
+      if (options.select) url += `select=${options.select}&`;
+      if (options.filter) url += options.filter + '&';
+      if (options.order) url += `order=${options.order}&`;
+      if (options.limit) url += `limit=${options.limit}&`;
+      
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Prefer': options.count ? 'count=exact' : ''
+          }
+        });
+        
+        const data = await res.json();
+        const count = res.headers.get('content-range')?.split('/')[1];
+        
+        return { data, count: count ? parseInt(count) : data.length };
+      } catch (e) {
+        console.error('Query error:', e);
+        return { data: [], count: 0, error: e };
+      }
+    }
+
+    // Load pending redemptions
+    async function loadResgates() {
+      const card = document.getElementById('card-resgates');
+      const badge = document.getElementById('badge-resgates');
+      const content = document.getElementById('content-resgates');
+      
+      const { data, count } = await query('reward_claims', {
+        select: 'id,created_at,rewards(title,hearts_cost)',
+        filter: 'status=eq.pending',
+        order: 'created_at.desc',
+        limit: 5
+      });
+      
+      if (count > 0) {
+        badge.className = 'bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold';
+        badge.textContent = count;
+        card.classList.add('pulse-alert', 'border-red-500');
+        
+        const total = data.reduce((acc, r) => acc + (r.rewards?.hearts_cost || 0), 0);
+        content.innerHTML = `
+          <div class="text-red-400 font-semibold mb-2">⚠️ ${count} resgate${count > 1 ? 's' : ''} aguardando!</div>
+          <div class="text-sm">Total: ${total} ❤️</div>
+        `;
+      } else {
+        badge.className = 'bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm';
+        badge.textContent = '✓';
+        content.innerHTML = '<div class="text-green-400">Tudo em dia! 🎉</div>';
+      }
+    }
+
+    // Load pending participations
+    async function loadParticipacoes() {
+      const badge = document.getElementById('badge-participacoes');
+      const content = document.getElementById('content-participacoes');
+      
+      const { data, count } = await query('challenge_participations', {
+        select: 'id,created_at,challenges(title)',
+        filter: 'status=eq.pending',
+        order: 'created_at.desc',
+        limit: 5
+      });
+      
+      if (count > 0) {
+        badge.className = 'bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold';
+        badge.textContent = count;
+        content.innerHTML = `<div class="text-yellow-400">${count} participação(ões) para revisar</div>`;
+      } else {
+        badge.className = 'bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm';
+        badge.textContent = '✓';
+        content.innerHTML = '<div class="text-green-400">Nenhuma pendente 👍</div>';
+      }
+    }
+
+    // Load reported bugs
+    async function loadBugs() {
+      const badge = document.getElementById('badge-bugs');
+      const content = document.getElementById('content-bugs');
+      
+      const { data, count } = await query('bug_reports', {
+        select: 'id,description,created_at',
+        filter: 'status=eq.pending',
+        order: 'created_at.desc',
+        limit: 3
+      });
+      
+      if (count > 0) {
+        badge.className = 'bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold';
+        badge.textContent = count;
+        
+        const bugList = data.slice(0, 2).map(b => 
+          `<div class="text-sm truncate">• ${b.description?.slice(0, 50) || 'Sem descrição'}...</div>`
+        ).join('');
+        content.innerHTML = bugList || '<div>-</div>';
+      } else {
+        badge.className = 'bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm';
+        badge.textContent = '0';
+        content.innerHTML = '<div class="text-green-400">Sem bugs reportados 🎉</div>';
+      }
+    }
+
+    // Load recent posts
+    async function loadPosts() {
+      const badge = document.getElementById('badge-posts');
+      const content = document.getElementById('content-posts');
+      
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      
+      const { data, count } = await query('posts', {
+        select: 'id,created_at',
+        filter: `created_at=gte.${yesterday}`,
+        order: 'created_at.desc'
+      });
+      
+      badge.className = 'bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm';
+      badge.textContent = count;
+      content.innerHTML = `<div>${count} post${count !== 1 ? 's' : ''} nas últimas 24h</div>`;
+    }
+
+    // Load metrics
+    async function loadMetrics() {
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      
+      // New users
+      const users = await query('profiles', {
+        filter: `created_at=gte.${yesterday}`,
+        count: true
+      });
+      document.getElementById('metric-users').textContent = users.count || 0;
+      
+      // New posts  
+      const posts = await query('posts', {
+        filter: `created_at=gte.${yesterday}`,
+        count: true
+      });
+      document.getElementById('metric-posts').textContent = posts.count || 0;
+      
+      // Hearts given
+      const hearts = await query('post_likes', {
+        filter: `created_at=gte.${yesterday}`,
+        count: true
+      });
+      document.getElementById('metric-hearts').textContent = hearts.count || 0;
+      
+      // Comments
+      const comments = await query('comments', {
+        filter: `created_at=gte.${yesterday}`,
+        count: true
+      });
+      document.getElementById('metric-comments').textContent = comments.count || 0;
+    }
+
+    // Load all
+    async function loadAll() {
+      updateDateTime();
+      
+      await Promise.all([
+        loadResgates(),
+        loadParticipacoes(),
+        loadBugs(),
+        loadPosts(),
+        loadMetrics()
+      ]);
+      
+      document.getElementById('last-update').textContent = 
+        `Última atualização: ${new Date().toLocaleTimeString('pt-BR')}`;
+    }
+
+    // Auto-refresh every 5 minutes
+    setInterval(loadAll, 5 * 60 * 1000);
+    
+    // Initial load
+    loadAll();
+  </script>
+</body>
+</html>

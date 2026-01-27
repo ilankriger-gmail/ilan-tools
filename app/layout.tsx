@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Ferramentas do Ilan",
   description: "Dashboard e ferramentas do Moço do Te Amo",
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

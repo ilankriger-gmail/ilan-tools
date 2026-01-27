@@ -38,6 +38,12 @@ const tools = [
     color: 'from-pink-500 to-red-500',
   },
   {
+    name: '🔗 UTM Generator',
+    description: 'Links com tracking para campanhas',
+    href: '/utm',
+    color: 'from-orange-500 to-yellow-500',
+  },
+  {
     name: '🧠 Second Brain',
     description: '630 notas organizadas do Apple Notes',
     href: '/brain',

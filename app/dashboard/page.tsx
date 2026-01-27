@@ -66,6 +66,7 @@ export default function Dashboard() {
 
   const externalLinks = [
     { name: '📱 App Store', href: 'https://appstoreconnect.apple.com' },
+    { name: '🚪 Portal', href: 'https://portal-omocodoteamo.vercel.app' },
     { name: '📊 Supabase', href: 'https://supabase.com/dashboard/project/gsxanzgwstlpfvnqcmiu' },
     { name: '🚀 Vercel', href: 'https://vercel.com/dashboard' },
     { name: '🌊 ViralWave', href: 'https://viralwave-web.vercel.app' },

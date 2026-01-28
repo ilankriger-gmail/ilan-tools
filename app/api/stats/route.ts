@@ -27,7 +27,7 @@ export async function GET() {
       query('challenge_participants', 'status=eq.pending'),
       query('bug_reports', 'status=eq.open'),
       query('posts', `created_at=gte.${yesterday}`),
-      query('profiles', `created_at=gte.${yesterday}`),
+      query('users', `created_at=gte.${yesterday}`),
       query('post_likes', `created_at=gte.${yesterday}`),
       query('comments', `created_at=gte.${yesterday}`),
     ]);

@@ -1,3 +1,0 @@
-# Você segue o NextlevelDJ? Se eu te ver na rua e não seguir, vai perder…
-
-Você segue o NextlevelDJ? Se eu te ver na rua e não seguir, vai perder R$200,00!

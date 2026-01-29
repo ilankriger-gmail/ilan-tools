@@ -1,3 +1,0 @@
-# e-mail eu tenho dúvida.. eu uso pelo telefone 41999741811, e-mail…
-
-e-mail eu tenho dúvida.. eu uso pelo telefone 41999741811, e-mail pode ser ilan@socialwave.com.br ou ilankriger@gmail.com a senha é Italo1954_!

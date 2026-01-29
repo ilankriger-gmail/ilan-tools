@@ -1,3 +1,0 @@
-# Aplicação com resgate automático de investimento com liquidez diária…
-
-Aplicação com resgate automático de investimento com liquidez diária.

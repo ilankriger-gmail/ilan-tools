@@ -1,3 +1,0 @@
-# Sim. Começa às 20h.. vale chegar uns 10 min antes.. não pode beber…
-
-Sim. Começa às 20h.. vale chegar uns 10 min antes.. não pode beber mas fumar sim

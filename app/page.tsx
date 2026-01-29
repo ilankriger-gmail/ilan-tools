@@ -49,6 +49,12 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: '/brain',
     color: 'from-purple-500 to-indigo-500',
   },
+  {
+    name: '💼 Deal Tracker',
+    description: 'Pipeline de propostas comerciais e parcerias',
+    href: '/deals',
+    color: 'from-emerald-500 to-teal-500',
+  },
 ];
 
 export default function Home() {

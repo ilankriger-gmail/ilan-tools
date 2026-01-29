@@ -96,6 +96,35 @@ function saveDeals(deals: Deal[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(deals));
 }
 
+async function fetchRemoteDeals(): Promise<Deal[]> {
+  try {
+    const res = await fetch('/deals-data.json');
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+function mergeDeals(local: Deal[], remote: Deal[]): Deal[] {
+  const merged = new Map<string, Deal>();
+  // Remote deals as base
+  for (const d of remote) merged.set(d.id, d);
+  // Local deals override (user may have edited)
+  for (const d of local) {
+    const existing = merged.get(d.id);
+    if (existing) {
+      // Keep whichever was updated more recently
+      if (new Date(d.updatedAt) >= new Date(existing.updatedAt)) {
+        merged.set(d.id, d);
+      }
+    } else {
+      merged.set(d.id, d);
+    }
+  }
+  return Array.from(merged.values());
+}
+
 // ============================================================
 // Components
 // ============================================================
@@ -407,8 +436,18 @@ export default function DealsPage() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setDeals(loadDeals());
+    const local = loadDeals();
+    setDeals(local);
     setLoaded(true);
+    // Also fetch remote deals and merge
+    fetchRemoteDeals().then((remote) => {
+      if (remote.length > 0) {
+        const currentLocal = loadDeals();
+        const merged = mergeDeals(currentLocal, remote);
+        setDeals(merged);
+        saveDeals(merged);
+      }
+    });
   }, []);
 
   const persist = useCallback((next: Deal[]) => {

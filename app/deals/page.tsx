@@ -27,6 +27,7 @@ interface Deal {
   deliverables: string;
   deadline: string; // ISO date
   notes: string;
+  lostReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -133,13 +134,23 @@ function DealCard({
   deal,
   onEdit,
   onMove,
+  onLost,
 }: {
   deal: Deal;
   onEdit: (d: Deal) => void;
   onMove: (id: string, stage: Stage) => void;
+  onLost: (id: string) => void;
 }) {
   const days = daysUntil(deal.deadline);
   const urgent = days !== null && days >= 0 && days <= 3;
+
+  // Find current stage index (excluding 'rejected')
+  const activeStages = STAGES.filter((s) => s.key !== 'rejected');
+  const currentIdx = activeStages.findIndex((s) => s.key === deal.stage);
+  const canGoBack = currentIdx > 0;
+  const canGoForward = currentIdx < activeStages.length - 1;
+  const prevStage = canGoBack ? activeStages[currentIdx - 1] : null;
+  const nextStage = canGoForward ? activeStages[currentIdx + 1] : null;
 
   return (
     <div
@@ -178,21 +189,56 @@ function DealCard({
         <span className="text-gray-600 text-xs">{deal.contact || deal.email}</span>
       </div>
 
-      {/* Quick move buttons */}
-      <div className="flex gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-        {STAGES.filter((s) => s.key !== deal.stage && s.key !== 'rejected').map((s) => (
+      {/* Navigation arrows + Lost button */}
+      <div className="flex items-center justify-between mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1">
+          {/* Back arrow */}
           <button
-            key={s.key}
             onClick={(e) => {
               e.stopPropagation();
-              onMove(deal.id, s.key);
+              if (prevStage) onMove(deal.id, prevStage.key);
             }}
-            className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-2 py-1 rounded transition"
-            title={`Mover para ${s.label}`}
+            disabled={!canGoBack}
+            className={`text-sm px-2 py-1 rounded transition ${
+              canGoBack
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-gray-800 text-gray-700 cursor-not-allowed'
+            }`}
+            title={prevStage ? `← ${prevStage.label}` : ''}
           >
-            {s.emoji}
+            ◀️
           </button>
-        ))}
+          {/* Forward arrow */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (nextStage) onMove(deal.id, nextStage.key);
+            }}
+            disabled={!canGoForward}
+            className={`text-sm px-2 py-1 rounded transition ${
+              canGoForward
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-gray-800 text-gray-700 cursor-not-allowed'
+            }`}
+            title={nextStage ? `→ ${nextStage.label}` : ''}
+          >
+            ▶️
+          </button>
+        </div>
+
+        {/* Lost button */}
+        {deal.stage !== 'rejected' && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onLost(deal.id);
+            }}
+            className="text-xs bg-red-900/50 hover:bg-red-800 text-red-400 px-3 py-1 rounded transition font-medium"
+            title="Marcar como perdida"
+          >
+            ❌ Perdida
+          </button>
+        )}
       </div>
     </div>
   );
@@ -348,6 +394,13 @@ function DealModal({
                 placeholder="Observações, histórico, links..."
               />
             </div>
+
+            {form.lostReason && (
+              <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg">
+                <label className="text-red-400 text-sm font-medium">❌ Motivo da perda</label>
+                <p className="text-red-300 text-sm mt-1">{form.lostReason}</p>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 mt-6">
@@ -474,6 +527,22 @@ export default function DealsPage() {
     persist(
       deals.map((x) =>
         x.id === id ? { ...x, stage, updatedAt: new Date().toISOString() } : x
+      )
+    );
+  };
+
+  const handleLost = (id: string) => {
+    const reason = prompt('Qual o motivo da perda?');
+    if (reason === null) return; // cancelled
+    if (!reason.trim()) {
+      alert('É necessário informar o motivo.');
+      return;
+    }
+    persist(
+      deals.map((x) =>
+        x.id === id
+          ? { ...x, stage: 'rejected' as Stage, lostReason: reason.trim(), updatedAt: new Date().toISOString() }
+          : x
       )
     );
   };
@@ -606,6 +675,7 @@ export default function DealsPage() {
                         deal={d}
                         onEdit={setEditDeal}
                         onMove={handleMove}
+                        onLost={handleLost}
                       />
                     ))}
                     {stageDealsList.length === 0 && (
@@ -674,11 +744,20 @@ export default function DealsPage() {
         {rejectedDeals.length > 0 && (
           <details className="mt-6">
             <summary className="text-gray-500 cursor-pointer hover:text-gray-300 text-sm">
-              ❌ {rejectedDeals.length} proposta(s) rejeitada(s)
+              ❌ {rejectedDeals.length} proposta(s) perdida(s)
             </summary>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
               {rejectedDeals.map((d) => (
-                <DealCard key={d.id} deal={d} onEdit={setEditDeal} onMove={handleMove} />
+                <div key={d.id}>
+                  <DealCard deal={d} onEdit={setEditDeal} onMove={handleMove} onLost={handleLost} />
+                  {d.lostReason && (
+                    <div className="mt-1 mx-1 px-3 py-2 bg-red-900/30 border border-red-800/50 rounded-lg">
+                      <p className="text-xs text-red-400">
+                        <span className="font-medium">Motivo:</span> {d.lostReason}
+                      </p>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </details>

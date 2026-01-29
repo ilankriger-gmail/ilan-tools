@@ -13,6 +13,8 @@ type Stage =
   | 'negotiating'
   | 'contracted'
   | 'delivered'
+  | 'contract_signed'
+  | 'invoice_sent'
   | 'paid'
   | 'lost'
   | 'rejected';
@@ -44,6 +46,8 @@ const STAGES: { key: Stage; label: string; emoji: string; color: string }[] = [
   { key: 'negotiating', label: 'Negociando', emoji: '🤝', color: 'bg-blue-900/40 border-blue-700' },
   { key: 'contracted', label: 'Contratada', emoji: '📝', color: 'bg-purple-900/40 border-purple-700' },
   { key: 'delivered', label: 'Entregue', emoji: '✅', color: 'bg-green-900/40 border-green-700' },
+  { key: 'contract_signed', label: 'Contrato Assinado', emoji: '📄', color: 'bg-teal-900/40 border-teal-700' },
+  { key: 'invoice_sent', label: 'NF Emitida', emoji: '🧾', color: 'bg-indigo-900/40 border-indigo-700' },
   { key: 'paid', label: 'Paga', emoji: '💰', color: 'bg-emerald-900/40 border-emerald-700' },
   { key: 'lost', label: 'Perdida', emoji: '😞', color: 'bg-orange-900/40 border-orange-700' },
   { key: 'rejected', label: 'Rejeitada', emoji: '🚫', color: 'bg-red-900/40 border-red-700' },
@@ -60,8 +64,6 @@ const PLATFORMS = [
   'Evento',
   'Outro',
 ];
-
-const STORAGE_KEY = 'ilan-deals-v1';
 
 // ============================================================
 // Helpers
@@ -86,47 +88,39 @@ function daysUntil(iso: string) {
   return diff;
 }
 
-function loadDeals(): Deal[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+// ============================================================
+// API helpers
+// ============================================================
+
+async function fetchDeals(): Promise<Deal[]> {
+  const res = await fetch('/api/deals');
+  if (!res.ok) return [];
+  return res.json();
 }
 
-function saveDeals(deals: Deal[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(deals));
+async function saveDeal(deal: Deal): Promise<Deal | null> {
+  const res = await fetch('/api/deals', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(deal),
+  });
+  if (!res.ok) return null;
+  return res.json();
 }
 
-async function fetchRemoteDeals(): Promise<Deal[]> {
-  try {
-    const res = await fetch('/deals-data.json');
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
+async function updateDeal(deal: Deal): Promise<Deal | null> {
+  const res = await fetch('/api/deals', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(deal),
+  });
+  if (!res.ok) return null;
+  return res.json();
 }
 
-function mergeDeals(local: Deal[], remote: Deal[]): Deal[] {
-  const merged = new Map<string, Deal>();
-  // Remote deals as base
-  for (const d of remote) merged.set(d.id, d);
-  // Local deals override (user may have edited)
-  for (const d of local) {
-    const existing = merged.get(d.id);
-    if (existing) {
-      // Keep whichever was updated more recently
-      if (new Date(d.updatedAt) >= new Date(existing.updatedAt)) {
-        merged.set(d.id, d);
-      }
-    } else {
-      merged.set(d.id, d);
-    }
-  }
-  return Array.from(merged.values());
+async function deleteDeal(id: string): Promise<boolean> {
+  const res = await fetch(`/api/deals?id=${id}`, { method: 'DELETE' });
+  return res.ok;
 }
 
 // ============================================================
@@ -511,81 +505,80 @@ export default function DealsPage() {
   const [editDeal, setEditDeal] = useState<Deal | null | 'new'>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const local = loadDeals();
-    setDeals(local);
-    setLoaded(true);
-    // Also fetch remote deals and merge
-    fetchRemoteDeals().then((remote) => {
-      if (remote.length > 0) {
-        const currentLocal = loadDeals();
-        const merged = mergeDeals(currentLocal, remote);
-        setDeals(merged);
-        saveDeals(merged);
-      }
+    fetchDeals().then((data) => {
+      setDeals(data);
+      setLoaded(true);
     });
   }, []);
 
-  const persist = useCallback((next: Deal[]) => {
-    setDeals(next);
-    saveDeals(next);
+  const handleSave = useCallback(async (d: Deal) => {
+    setSaving(true);
+    const exists = deals.find((x) => x.id === d.id);
+    let result: Deal | null;
+    if (exists) {
+      result = await updateDeal(d);
+    } else {
+      result = await saveDeal(d);
+    }
+    if (result) {
+      if (exists) {
+        setDeals((prev) => prev.map((x) => (x.id === result!.id ? result! : x)));
+      } else {
+        setDeals((prev) => [result!, ...prev]);
+      }
+    }
+    setSaving(false);
+    setEditDeal(null);
+  }, [deals]);
+
+  const handleDelete = useCallback(async (id: string) => {
+    setSaving(true);
+    const ok = await deleteDeal(id);
+    if (ok) {
+      setDeals((prev) => prev.filter((x) => x.id !== id));
+    }
+    setSaving(false);
+    setEditDeal(null);
   }, []);
 
-  const handleSave = (d: Deal) => {
-    const exists = deals.find((x) => x.id === d.id);
-    if (exists) {
-      persist(deals.map((x) => (x.id === d.id ? d : x)));
-    } else {
-      persist([...deals, d]);
-    }
-    setEditDeal(null);
-  };
+  const handleMove = useCallback(async (id: string, stage: Stage) => {
+    const deal = deals.find((x) => x.id === id);
+    if (!deal) return;
+    const updated = { ...deal, stage, updatedAt: new Date().toISOString() };
+    setDeals((prev) => prev.map((x) => (x.id === id ? updated : x)));
+    await updateDeal(updated);
+  }, [deals]);
 
-  const handleDelete = (id: string) => {
-    persist(deals.filter((x) => x.id !== id));
-    setEditDeal(null);
-  };
-
-  const handleMove = (id: string, stage: Stage) => {
-    persist(
-      deals.map((x) =>
-        x.id === id ? { ...x, stage, updatedAt: new Date().toISOString() } : x
-      )
-    );
-  };
-
-  const handleLost = (id: string) => {
+  const handleLost = useCallback(async (id: string) => {
     const reason = prompt('😞 Qual o motivo da perda? (cliente não seguiu, etc)');
     if (reason === null) return;
     if (!reason.trim()) {
       alert('É necessário informar o motivo.');
       return;
     }
-    persist(
-      deals.map((x) =>
-        x.id === id
-          ? { ...x, stage: 'lost' as Stage, lostReason: reason.trim(), updatedAt: new Date().toISOString() }
-          : x
-      )
-    );
-  };
+    const deal = deals.find((x) => x.id === id);
+    if (!deal) return;
+    const updated = { ...deal, stage: 'lost' as Stage, lostReason: reason.trim(), updatedAt: new Date().toISOString() };
+    setDeals((prev) => prev.map((x) => (x.id === id ? updated : x)));
+    await updateDeal(updated);
+  }, [deals]);
 
-  const handleReject = (id: string) => {
+  const handleReject = useCallback(async (id: string) => {
     const reason = prompt('🚫 Por que não quer trabalhar com eles?');
     if (reason === null) return;
     if (!reason.trim()) {
       alert('É necessário informar o motivo.');
       return;
     }
-    persist(
-      deals.map((x) =>
-        x.id === id
-          ? { ...x, stage: 'rejected' as Stage, rejectedReason: reason.trim(), updatedAt: new Date().toISOString() }
-          : x
-      )
-    );
-  };
+    const deal = deals.find((x) => x.id === id);
+    if (!deal) return;
+    const updated = { ...deal, stage: 'rejected' as Stage, rejectedReason: reason.trim(), updatedAt: new Date().toISOString() };
+    setDeals((prev) => prev.map((x) => (x.id === id ? updated : x)));
+    await updateDeal(updated);
+  }, [deals]);
 
   // Export / Import
   const handleExport = () => {
@@ -609,17 +602,25 @@ export default function DealsPage() {
         const text = await file.text();
         const imported: Deal[] = JSON.parse(text);
         if (!Array.isArray(imported)) throw new Error('Invalid format');
-        // Merge: imported wins on conflict
-        const merged = [...deals];
+        setSaving(true);
+        let count = 0;
         for (const d of imported) {
-          const idx = merged.findIndex((x) => x.id === d.id);
-          if (idx >= 0) merged[idx] = d;
-          else merged.push(d);
+          const exists = deals.find((x) => x.id === d.id);
+          if (exists) {
+            await updateDeal(d);
+          } else {
+            await saveDeal(d);
+          }
+          count++;
         }
-        persist(merged);
-        alert(`Importado! ${imported.length} deals.`);
+        // Refresh all deals from server
+        const fresh = await fetchDeals();
+        setDeals(fresh);
+        setSaving(false);
+        alert(`Importado! ${count} deals.`);
       } catch {
         alert('Arquivo inválido. Use um JSON exportado daqui.');
+        setSaving(false);
       }
     };
     input.click();
@@ -652,6 +653,9 @@ export default function DealsPage() {
             <p className="text-gray-400 mt-1">Pipeline de propostas comerciais</p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            {saving && (
+              <span className="text-yellow-400 text-sm self-center animate-pulse">💾 Salvando...</span>
+            )}
             <button
               onClick={() => setViewMode(viewMode === 'kanban' ? 'list' : 'kanban')}
               className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition"

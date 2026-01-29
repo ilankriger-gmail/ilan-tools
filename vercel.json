@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/deals/search-email", "schedule": "0 */2 * * *" },
+    { "path": "/api/deals/check-contracts", "schedule": "0 */4 * * *" }
+  ]
+}

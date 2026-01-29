@@ -45,8 +45,9 @@ const tools: { name: string; description: string; href: string; color: string; e
   },
   {
     name: '🧠 Second Brain',
-    description: '630 notas organizadas do Apple Notes',
-    href: '/brain',
+    description: '769 notas organizadas do Apple Notes',
+    href: 'https://second-brain-app-five.vercel.app',
+    external: true,
     color: 'from-purple-500 to-indigo-500',
   },
   {

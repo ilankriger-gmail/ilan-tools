@@ -14,6 +14,7 @@ type Stage =
   | 'contracted'
   | 'delivered'
   | 'paid'
+  | 'lost'
   | 'rejected';
 
 interface Deal {
@@ -28,6 +29,7 @@ interface Deal {
   deadline: string; // ISO date
   notes: string;
   lostReason?: string;
+  rejectedReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -43,7 +45,8 @@ const STAGES: { key: Stage; label: string; emoji: string; color: string }[] = [
   { key: 'contracted', label: 'Contratada', emoji: '📝', color: 'bg-purple-900/40 border-purple-700' },
   { key: 'delivered', label: 'Entregue', emoji: '✅', color: 'bg-green-900/40 border-green-700' },
   { key: 'paid', label: 'Paga', emoji: '💰', color: 'bg-emerald-900/40 border-emerald-700' },
-  { key: 'rejected', label: 'Rejeitada', emoji: '❌', color: 'bg-red-900/40 border-red-700' },
+  { key: 'lost', label: 'Perdida', emoji: '😞', color: 'bg-orange-900/40 border-orange-700' },
+  { key: 'rejected', label: 'Rejeitada', emoji: '🚫', color: 'bg-red-900/40 border-red-700' },
 ];
 
 const PLATFORMS = [
@@ -135,17 +138,19 @@ function DealCard({
   onEdit,
   onMove,
   onLost,
+  onReject,
 }: {
   deal: Deal;
   onEdit: (d: Deal) => void;
   onMove: (id: string, stage: Stage) => void;
   onLost: (id: string) => void;
+  onReject: (id: string) => void;
 }) {
   const days = daysUntil(deal.deadline);
   const urgent = days !== null && days >= 0 && days <= 3;
 
-  // Find current stage index (excluding 'rejected')
-  const activeStages = STAGES.filter((s) => s.key !== 'rejected');
+  // Find current stage index (excluding 'lost' and 'rejected')
+  const activeStages = STAGES.filter((s) => s.key !== 'lost' && s.key !== 'rejected');
   const currentIdx = activeStages.findIndex((s) => s.key === deal.stage);
   const canGoBack = currentIdx > 0;
   const canGoForward = currentIdx < activeStages.length - 1;
@@ -226,18 +231,30 @@ function DealCard({
           </button>
         </div>
 
-        {/* Lost button */}
-        {deal.stage !== 'rejected' && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onLost(deal.id);
-            }}
-            className="text-xs bg-red-900/50 hover:bg-red-800 text-red-400 px-3 py-1 rounded transition font-medium"
-            title="Marcar como perdida"
-          >
-            ❌ Perdida
-          </button>
+        {/* Lost + Reject buttons */}
+        {deal.stage !== 'lost' && deal.stage !== 'rejected' && (
+          <div className="flex gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onLost(deal.id);
+              }}
+              className="text-xs bg-orange-900/50 hover:bg-orange-800 text-orange-400 px-2 py-1 rounded transition font-medium"
+              title="Cliente não seguiu"
+            >
+              😞 Perdida
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onReject(deal.id);
+              }}
+              className="text-xs bg-red-900/50 hover:bg-red-800 text-red-400 px-2 py-1 rounded transition font-medium"
+              title="Não quero trabalhar com eles"
+            >
+              🚫 Rejeitar
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -396,9 +413,16 @@ function DealModal({
             </div>
 
             {form.lostReason && (
+              <div className="p-3 bg-orange-900/30 border border-orange-700 rounded-lg">
+                <label className="text-orange-400 text-sm font-medium">😞 Motivo da perda</label>
+                <p className="text-orange-300 text-sm mt-1">{form.lostReason}</p>
+              </div>
+            )}
+
+            {form.rejectedReason && (
               <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg">
-                <label className="text-red-400 text-sm font-medium">❌ Motivo da perda</label>
-                <p className="text-red-300 text-sm mt-1">{form.lostReason}</p>
+                <label className="text-red-400 text-sm font-medium">🚫 Motivo da rejeição</label>
+                <p className="text-red-300 text-sm mt-1">{form.rejectedReason}</p>
               </div>
             )}
           </div>
@@ -441,7 +465,7 @@ function DealModal({
 // ============================================================
 
 function SummaryBar({ deals }: { deals: Deal[] }) {
-  const active = deals.filter((d) => !['paid', 'rejected'].includes(d.stage));
+  const active = deals.filter((d) => !['paid', 'lost', 'rejected'].includes(d.stage));
   const pipeline = active.reduce((sum, d) => sum + d.value, 0);
   const paid = deals.filter((d) => d.stage === 'paid');
   const earned = paid.reduce((sum, d) => sum + d.value, 0);
@@ -532,8 +556,8 @@ export default function DealsPage() {
   };
 
   const handleLost = (id: string) => {
-    const reason = prompt('Qual o motivo da perda?');
-    if (reason === null) return; // cancelled
+    const reason = prompt('😞 Qual o motivo da perda? (cliente não seguiu, etc)');
+    if (reason === null) return;
     if (!reason.trim()) {
       alert('É necessário informar o motivo.');
       return;
@@ -541,7 +565,23 @@ export default function DealsPage() {
     persist(
       deals.map((x) =>
         x.id === id
-          ? { ...x, stage: 'rejected' as Stage, lostReason: reason.trim(), updatedAt: new Date().toISOString() }
+          ? { ...x, stage: 'lost' as Stage, lostReason: reason.trim(), updatedAt: new Date().toISOString() }
+          : x
+      )
+    );
+  };
+
+  const handleReject = (id: string) => {
+    const reason = prompt('🚫 Por que não quer trabalhar com eles?');
+    if (reason === null) return;
+    if (!reason.trim()) {
+      alert('É necessário informar o motivo.');
+      return;
+    }
+    persist(
+      deals.map((x) =>
+        x.id === id
+          ? { ...x, stage: 'rejected' as Stage, rejectedReason: reason.trim(), updatedAt: new Date().toISOString() }
           : x
       )
     );
@@ -593,7 +633,8 @@ export default function DealsPage() {
     );
   }
 
-  const activeStages = STAGES.filter((s) => s.key !== 'rejected');
+  const activeStages = STAGES.filter((s) => s.key !== 'lost' && s.key !== 'rejected');
+  const lostDeals = deals.filter((d) => d.stage === 'lost');
   const rejectedDeals = deals.filter((d) => d.stage === 'rejected');
 
   return (
@@ -676,6 +717,7 @@ export default function DealsPage() {
                         onEdit={setEditDeal}
                         onMove={handleMove}
                         onLost={handleLost}
+                        onReject={handleReject}
                       />
                     ))}
                     {stageDealsList.length === 0 && (
@@ -702,7 +744,7 @@ export default function DealsPage() {
               </thead>
               <tbody>
                 {deals
-                  .filter((d) => d.stage !== 'rejected')
+                  .filter((d) => d.stage !== 'rejected' && d.stage !== 'lost')
                   .sort((a, b) => {
                     const si = STAGES.findIndex((s) => s.key === a.stage);
                     const sj = STAGES.findIndex((s) => s.key === b.stage);
@@ -740,20 +782,43 @@ export default function DealsPage() {
           </div>
         )}
 
+        {/* Lost (collapsed) */}
+        {lostDeals.length > 0 && (
+          <details className="mt-6">
+            <summary className="text-orange-400/70 cursor-pointer hover:text-orange-300 text-sm">
+              😞 {lostDeals.length} proposta(s) perdida(s)
+            </summary>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+              {lostDeals.map((d) => (
+                <div key={d.id}>
+                  <DealCard deal={d} onEdit={setEditDeal} onMove={handleMove} onLost={handleLost} onReject={handleReject} />
+                  {d.lostReason && (
+                    <div className="mt-1 mx-1 px-3 py-2 bg-orange-900/30 border border-orange-800/50 rounded-lg">
+                      <p className="text-xs text-orange-400">
+                        <span className="font-medium">Motivo:</span> {d.lostReason}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
+
         {/* Rejected (collapsed) */}
         {rejectedDeals.length > 0 && (
           <details className="mt-6">
-            <summary className="text-gray-500 cursor-pointer hover:text-gray-300 text-sm">
-              ❌ {rejectedDeals.length} proposta(s) perdida(s)
+            <summary className="text-red-400/70 cursor-pointer hover:text-red-300 text-sm">
+              🚫 {rejectedDeals.length} proposta(s) rejeitada(s)
             </summary>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
               {rejectedDeals.map((d) => (
                 <div key={d.id}>
-                  <DealCard deal={d} onEdit={setEditDeal} onMove={handleMove} onLost={handleLost} />
-                  {d.lostReason && (
+                  <DealCard deal={d} onEdit={setEditDeal} onMove={handleMove} onLost={handleLost} onReject={handleReject} />
+                  {d.rejectedReason && (
                     <div className="mt-1 mx-1 px-3 py-2 bg-red-900/30 border border-red-800/50 rounded-lg">
                       <p className="text-xs text-red-400">
-                        <span className="font-medium">Motivo:</span> {d.lostReason}
+                        <span className="font-medium">Motivo:</span> {d.rejectedReason}
                       </p>
                     </div>
                   )}

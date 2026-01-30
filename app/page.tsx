@@ -36,6 +36,14 @@ const tools: { name: string; description: string; href: string; color: string; e
     color: 'from-green-500 to-teal-500',
     category: 'principal',
   },
+  {
+    name: '🔥 Viral Finder',
+    description: 'Detectar outliers, trends e conteúdo viral',
+    href: 'https://viral-finder-eight.vercel.app',
+    external: true,
+    color: 'from-amber-500 to-red-500',
+    category: 'principal',
+  },
   // --- Ferramentas ---
   {
     name: '🌅 Dashboard Matinal',

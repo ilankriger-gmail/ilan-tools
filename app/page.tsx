@@ -82,11 +82,11 @@ const tools: { name: string; description: string; href: string; color: string; e
     color: 'from-purple-500 to-indigo-500',
     category: 'ferramenta',
   },
-  // ═══ 🌐 SITES — projetos e plataformas ═══
+  // ═══ 🌐 SITES — sites públicos pro público final ═══
   {
     name: '❤️ Comunidade',
-    description: 'Arena Te Amo — Admin e gestão',
-    href: 'https://comunidade.omocodoteamo.com.br/admin',
+    description: 'Arena Te Amo — plataforma da comunidade',
+    href: 'https://comunidade.omocodoteamo.com.br',
     external: true,
     color: 'from-pink-500 to-red-500',
     category: 'site',
@@ -107,13 +107,14 @@ const tools: { name: string; description: string; href: string; color: string; e
     color: 'from-green-500 to-teal-500',
     category: 'site',
   },
+  // ═══ 🔑 DEVELOPER CONSOLES — APIs e apps de plataformas ═══
   {
     name: '📘 Meta Developer',
     description: 'Apps Facebook/Instagram/Threads',
     href: 'https://developers.facebook.com/apps/2420111758421057/',
     external: true,
     color: 'from-blue-600 to-blue-400',
-    category: 'site',
+    category: 'developer',
   },
   {
     name: '🎵 TikTok Developer',
@@ -121,7 +122,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://developers.tiktok.com/apps/',
     external: true,
     color: 'from-gray-800 to-gray-600',
-    category: 'site',
+    category: 'developer',
   },
   {
     name: '🐦 X/Twitter Console',
@@ -129,7 +130,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://console.x.com',
     external: true,
     color: 'from-gray-700 to-gray-500',
-    category: 'site',
+    category: 'developer',
   },
   {
     name: '🤖 Apify Console',
@@ -137,15 +138,16 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://console.apify.com',
     external: true,
     color: 'from-teal-600 to-cyan-400',
-    category: 'site',
+    category: 'developer',
   },
+  // ═══ ⚙️ INFRAESTRUTURA — hosting, banco, código ═══
   {
     name: '🗄️ Supabase',
-    description: 'Banco de dados — Creator Dashboard + Comunidade',
+    description: 'Banco de dados e autenticação',
     href: 'https://supabase.com/dashboard',
     external: true,
     color: 'from-emerald-600 to-green-400',
-    category: 'site',
+    category: 'infra',
   },
   {
     name: '▲ Vercel',
@@ -153,7 +155,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://vercel.com/dashboard',
     external: true,
     color: 'from-gray-900 to-gray-700',
-    category: 'site',
+    category: 'infra',
   },
   {
     name: '🚂 Railway',
@@ -161,7 +163,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://railway.app/dashboard',
     external: true,
     color: 'from-purple-700 to-indigo-500',
-    category: 'site',
+    category: 'infra',
   },
   {
     name: '🐙 GitHub',
@@ -169,7 +171,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://github.com/ilankriger-gmail',
     external: true,
     color: 'from-gray-800 to-purple-600',
-    category: 'site',
+    category: 'infra',
   },
   // ═══ 👤 PESSOAL — vida, negócios, organização ═══
   {
@@ -201,6 +203,8 @@ const tools: { name: string; description: string; href: string; color: string; e
 const categories = [
   { key: 'ferramenta', label: '🔧 Ferramentas' },
   { key: 'site', label: '🌐 Sites' },
+  { key: 'developer', label: '🔑 Developer Consoles' },
+  { key: 'infra', label: '⚙️ Infraestrutura' },
   { key: 'pessoal', label: '👤 Pessoal' },
 ];
 

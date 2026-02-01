@@ -46,13 +46,6 @@ const tools: { name: string; description: string; href: string; color: string; e
   },
   // --- Ferramentas ---
   {
-    name: '🌅 Dashboard Matinal',
-    description: 'Tudo que precisa de atenção num só lugar',
-    href: '/dashboard',
-    color: 'from-orange-500 to-pink-500',
-    category: 'ferramenta',
-  },
-  {
     name: '🎬 YouTube Analyzer',
     description: 'Analisar vídeos e canais do YouTube — download, métricas, comparação',
     href: 'https://youtube-analyzer-eosin.vercel.app',

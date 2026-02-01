@@ -6,7 +6,7 @@ const tools: { name: string; description: string; href: string; color: string; e
   // --- Principais ---
   {
     name: '📊 Creator Dashboard',
-    description: 'Analytics unificado: YouTube, Instagram, TikTok, Twitter',
+    description: 'Analytics unificado com IA: YouTube, Instagram, TikTok, Twitter, Facebook, Threads',
     href: 'https://creator-dashboard-beta.vercel.app',
     external: true,
     color: 'from-violet-500 to-purple-500',
@@ -22,7 +22,7 @@ const tools: { name: string; description: string; href: string; color: string; e
   },
   {
     name: '❤️ Comunidade',
-    description: 'Arena Te Amo - Admin',
+    description: 'Arena Te Amo — Admin e gestão da comunidade',
     href: 'https://comunidade.omocodoteamo.com.br/admin',
     external: true,
     color: 'from-pink-500 to-red-500',
@@ -54,10 +54,34 @@ const tools: { name: string; description: string; href: string; color: string; e
   },
   {
     name: '🎬 YouTube Analyzer',
-    description: 'Analisar vídeos e canais do YouTube',
+    description: 'Analisar vídeos e canais do YouTube — download, métricas, comparação',
     href: 'https://youtube-analyzer-eosin.vercel.app',
     external: true,
     color: 'from-red-500 to-orange-500',
+    category: 'ferramenta',
+  },
+  {
+    name: '📸 Instagram Analyzer',
+    description: 'Analisar reels e posts do Instagram — views, likes, download',
+    href: 'https://instagram-analyzer-production-f8bf.up.railway.app',
+    external: true,
+    color: 'from-pink-500 to-purple-500',
+    category: 'ferramenta',
+  },
+  {
+    name: '📜 Teleprompter',
+    description: 'Roteiros com scroll automático, espelho, timer e modo câmera',
+    href: 'https://2026-02-01-teleprompter.vercel.app',
+    external: true,
+    color: 'from-sky-500 to-blue-500',
+    category: 'ferramenta',
+  },
+  {
+    name: '🏠 Community Command Center',
+    description: 'Dashboard ao vivo da comunidade — stats, heatmap, feed em tempo real',
+    href: 'https://community-command-center.vercel.app',
+    external: true,
+    color: 'from-rose-500 to-pink-500',
     category: 'ferramenta',
   },
   {
@@ -68,14 +92,6 @@ const tools: { name: string; description: string; href: string; color: string; e
     category: 'ferramenta',
   },
   {
-    name: '🧠 Second Brain',
-    description: '769 notas organizadas do Apple Notes',
-    href: 'https://second-brain-app-five.vercel.app',
-    external: true,
-    color: 'from-purple-500 to-indigo-500',
-    category: 'ferramenta',
-  },
-  {
     name: '💼 Deal Tracker',
     description: 'Pipeline de propostas comerciais e parcerias',
     href: '/deals',
@@ -83,17 +99,17 @@ const tools: { name: string; description: string; href: string; color: string; e
     category: 'ferramenta',
   },
   {
-    name: '📜 Teleprompter',
-    description: 'Roteiros com scroll automático, espelho e timer',
-    href: 'https://2026-02-01-teleprompter.vercel.app',
+    name: '🧠 Second Brain',
+    description: '769 notas organizadas do Apple Notes',
+    href: 'https://second-brain-app-five.vercel.app',
     external: true,
-    color: 'from-sky-500 to-blue-500',
+    color: 'from-purple-500 to-indigo-500',
     category: 'ferramenta',
   },
   // --- Consoles de Developer ---
   {
     name: '📘 Meta Developer',
-    description: 'Apps Facebook/Instagram — Creator Dashboard',
+    description: 'Apps Facebook/Instagram/Threads',
     href: 'https://developers.facebook.com/apps/2420111758421057/',
     external: true,
     color: 'from-blue-600 to-blue-400',
@@ -115,10 +131,18 @@ const tools: { name: string; description: string; href: string; color: string; e
     color: 'from-gray-700 to-gray-500',
     category: 'console',
   },
+  {
+    name: '🤖 Apify Console',
+    description: 'Scrapers: TikTok, Twitter, Facebook, Threads, Instagram',
+    href: 'https://console.apify.com',
+    external: true,
+    color: 'from-teal-600 to-cyan-400',
+    category: 'console',
+  },
   // --- Infraestrutura ---
   {
     name: '🗄️ Supabase',
-    description: 'Banco de dados e autenticação',
+    description: 'Banco de dados — Creator Dashboard + Comunidade',
     href: 'https://supabase.com/dashboard',
     external: true,
     color: 'from-emerald-600 to-green-400',
@@ -130,6 +154,14 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://vercel.com/dashboard',
     external: true,
     color: 'from-gray-900 to-gray-700',
+    category: 'infra',
+  },
+  {
+    name: '🚂 Railway',
+    description: 'Hosting: Instagram Analyzer, downloads',
+    href: 'https://railway.app/dashboard',
+    external: true,
+    color: 'from-purple-700 to-indigo-500',
     category: 'infra',
   },
   {

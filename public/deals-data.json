@@ -322,5 +322,19 @@
     "endDate": "2026-04-01",
     "createdAt": "2026-01-29T15:25:00Z",
     "updatedAt": "2026-01-29T21:35:00Z"
+  },
+  {
+    "id": "fiep-play9-2025",
+    "brand": "Sistema FIEP (Federação das Indústrias do PR)",
+    "contact": "Juliana Brant Mendes Caffaro",
+    "email": "juliana.caffaro@sistemafiep.org.br",
+    "value": 0,
+    "stage": "contracted",
+    "platform": "Publicidade",
+    "deliverables": "Contrato de Publicidade Play9 - 2025 (detalhes no contrato assinado via Clicksign)",
+    "deadline": "",
+    "notes": "Contrato assinado via Clicksign em 26/01/2026. Signatários: Juliana Caffaro (FIEP - contratante), Ilan Kriger (contratada + anuente), Gabriela Padilha (Play9 - interveniente), Anna Caroline Barros (Play9 - validador). Valor não informado no email.",
+    "createdAt": "2026-01-26T20:31:00Z",
+    "updatedAt": "2026-01-26T20:31:00Z"
   }
 ]

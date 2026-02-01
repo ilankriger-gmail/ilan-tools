@@ -82,6 +82,14 @@ const tools: { name: string; description: string; href: string; color: string; e
     color: 'from-emerald-500 to-teal-500',
     category: 'ferramenta',
   },
+  {
+    name: '📜 Teleprompter',
+    description: 'Roteiros com scroll automático, espelho e timer',
+    href: 'https://2026-02-01-teleprompter.vercel.app',
+    external: true,
+    color: 'from-sky-500 to-blue-500',
+    category: 'ferramenta',
+  },
   // --- Consoles de Developer ---
   {
     name: '📘 Meta Developer',

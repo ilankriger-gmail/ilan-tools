@@ -45,6 +45,14 @@ const tools: { name: string; description: string; href: string; color: string; e
     category: 'ferramenta',
   },
   {
+    name: '🎵 TikTok Analyzer',
+    description: 'Analisar vídeos e perfis do TikTok — métricas, download, comparação',
+    href: 'https://youtube-analyzer-eosin.vercel.app/tiktok',
+    external: true,
+    color: 'from-gray-900 to-pink-600',
+    category: 'ferramenta',
+  },
+  {
     name: '📜 Teleprompter',
     description: 'Roteiros com scroll automático, espelho, timer e modo câmera',
     href: 'https://2026-02-01-teleprompter.vercel.app',

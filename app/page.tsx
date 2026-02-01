@@ -3,14 +3,14 @@
 import Link from 'next/link';
 
 const tools: { name: string; description: string; href: string; color: string; external?: boolean; soon?: boolean; category?: string }[] = [
-  // --- Principais ---
+  // ═══ 🔧 FERRAMENTAS — tudo que ajuda a produzir ═══
   {
     name: '📊 Creator Dashboard',
-    description: 'Analytics unificado com IA: YouTube, Instagram, TikTok, Twitter, Facebook, Threads',
+    description: 'Analytics com IA: YouTube, Instagram, TikTok, Twitter, Facebook, Threads',
     href: 'https://creator-dashboard-beta.vercel.app',
     external: true,
     color: 'from-violet-500 to-purple-500',
-    category: 'principal',
+    category: 'ferramenta',
   },
   {
     name: '🌊 ViralWave',
@@ -18,23 +18,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://viralwave-web.vercel.app',
     external: true,
     color: 'from-blue-500 to-cyan-500',
-    category: 'principal',
-  },
-  {
-    name: '❤️ Comunidade',
-    description: 'Arena Te Amo — Admin e gestão da comunidade',
-    href: 'https://comunidade.omocodoteamo.com.br/admin',
-    external: true,
-    color: 'from-pink-500 to-red-500',
-    category: 'principal',
-  },
-  {
-    name: '🚪 Portal',
-    description: 'Portal O Moço do Te Amo',
-    href: 'https://portal-omocodoteamo.vercel.app',
-    external: true,
-    color: 'from-green-500 to-teal-500',
-    category: 'principal',
+    category: 'ferramenta',
   },
   {
     name: '🔥 Viral Finder',
@@ -42,12 +26,11 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://viral-finder-eight.vercel.app',
     external: true,
     color: 'from-amber-500 to-red-500',
-    category: 'principal',
+    category: 'ferramenta',
   },
-  // --- Ferramentas ---
   {
     name: '🎬 YouTube Analyzer',
-    description: 'Analisar vídeos e canais do YouTube — download, métricas, comparação',
+    description: 'Analisar vídeos e canais — download, métricas, comparação',
     href: 'https://youtube-analyzer-eosin.vercel.app',
     external: true,
     color: 'from-red-500 to-orange-500',
@@ -55,7 +38,7 @@ const tools: { name: string; description: string; href: string; color: string; e
   },
   {
     name: '📸 Instagram Analyzer',
-    description: 'Analisar reels e posts do Instagram — views, likes, download',
+    description: 'Analisar reels e posts — views, likes, download',
     href: 'https://instagram-analyzer-production-f8bf.up.railway.app',
     external: true,
     color: 'from-pink-500 to-purple-500',
@@ -67,14 +50,6 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://2026-02-01-teleprompter.vercel.app',
     external: true,
     color: 'from-sky-500 to-blue-500',
-    category: 'ferramenta',
-  },
-  {
-    name: '🏠 Community Command Center',
-    description: 'Dashboard ao vivo da comunidade — stats, heatmap, feed em tempo real',
-    href: 'https://community-command-center.vercel.app',
-    external: true,
-    color: 'from-rose-500 to-pink-500',
     category: 'ferramenta',
   },
   {
@@ -93,20 +68,44 @@ const tools: { name: string; description: string; href: string; color: string; e
   },
   {
     name: '🧠 Second Brain',
-    description: '769 notas organizadas do Apple Notes',
+    description: '2.096 notas organizadas — formatos, estudos, ideias',
     href: 'https://second-brain-app-five.vercel.app',
     external: true,
     color: 'from-purple-500 to-indigo-500',
     category: 'ferramenta',
   },
-  // --- Consoles de Developer ---
+  // ═══ 🌐 SITES — projetos e plataformas ═══
+  {
+    name: '❤️ Comunidade',
+    description: 'Arena Te Amo — Admin e gestão',
+    href: 'https://comunidade.omocodoteamo.com.br/admin',
+    external: true,
+    color: 'from-pink-500 to-red-500',
+    category: 'site',
+  },
+  {
+    name: '🏠 Command Center',
+    description: 'Dashboard ao vivo da comunidade — stats, heatmap, feed',
+    href: 'https://community-command-center.vercel.app',
+    external: true,
+    color: 'from-rose-500 to-pink-500',
+    category: 'site',
+  },
+  {
+    name: '🚪 Portal',
+    description: 'Portal O Moço do Te Amo',
+    href: 'https://portal-omocodoteamo.vercel.app',
+    external: true,
+    color: 'from-green-500 to-teal-500',
+    category: 'site',
+  },
   {
     name: '📘 Meta Developer',
     description: 'Apps Facebook/Instagram/Threads',
     href: 'https://developers.facebook.com/apps/2420111758421057/',
     external: true,
     color: 'from-blue-600 to-blue-400',
-    category: 'console',
+    category: 'site',
   },
   {
     name: '🎵 TikTok Developer',
@@ -114,15 +113,15 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://developers.tiktok.com/apps/',
     external: true,
     color: 'from-gray-800 to-gray-600',
-    category: 'console',
+    category: 'site',
   },
   {
     name: '🐦 X/Twitter Console',
-    description: 'API Keys e configurações do Twitter',
+    description: 'API Keys e configurações',
     href: 'https://console.x.com',
     external: true,
     color: 'from-gray-700 to-gray-500',
-    category: 'console',
+    category: 'site',
   },
   {
     name: '🤖 Apify Console',
@@ -130,16 +129,15 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://console.apify.com',
     external: true,
     color: 'from-teal-600 to-cyan-400',
-    category: 'console',
+    category: 'site',
   },
-  // --- Infraestrutura ---
   {
     name: '🗄️ Supabase',
     description: 'Banco de dados — Creator Dashboard + Comunidade',
     href: 'https://supabase.com/dashboard',
     external: true,
     color: 'from-emerald-600 to-green-400',
-    category: 'infra',
+    category: 'site',
   },
   {
     name: '▲ Vercel',
@@ -147,7 +145,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://vercel.com/dashboard',
     external: true,
     color: 'from-gray-900 to-gray-700',
-    category: 'infra',
+    category: 'site',
   },
   {
     name: '🚂 Railway',
@@ -155,7 +153,7 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://railway.app/dashboard',
     external: true,
     color: 'from-purple-700 to-indigo-500',
-    category: 'infra',
+    category: 'site',
   },
   {
     name: '🐙 GitHub',
@@ -163,15 +161,39 @@ const tools: { name: string; description: string; href: string; color: string; e
     href: 'https://github.com/ilankriger-gmail',
     external: true,
     color: 'from-gray-800 to-purple-600',
-    category: 'infra',
+    category: 'site',
+  },
+  // ═══ 👤 PESSOAL — vida, negócios, organização ═══
+  {
+    name: '📧 Gmail',
+    description: 'Email principal — ilankriger@gmail.com',
+    href: 'https://mail.google.com',
+    external: true,
+    color: 'from-red-600 to-red-400',
+    category: 'pessoal',
+  },
+  {
+    name: '📅 Google Calendar',
+    description: 'Agenda e compromissos',
+    href: 'https://calendar.google.com',
+    external: true,
+    color: 'from-blue-600 to-blue-400',
+    category: 'pessoal',
+  },
+  {
+    name: '📂 Google Drive',
+    description: 'Arquivos e documentos',
+    href: 'https://drive.google.com',
+    external: true,
+    color: 'from-yellow-500 to-green-500',
+    category: 'pessoal',
   },
 ];
 
 const categories = [
-  { key: 'principal', label: '🚀 Principais' },
   { key: 'ferramenta', label: '🔧 Ferramentas' },
-  { key: 'console', label: '👨‍💻 Developer Consoles' },
-  { key: 'infra', label: '⚙️ Infraestrutura' },
+  { key: 'site', label: '🌐 Sites' },
+  { key: 'pessoal', label: '👤 Pessoal' },
 ];
 
 export default function Home() {

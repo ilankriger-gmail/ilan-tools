@@ -53,6 +53,14 @@ const tools: { name: string; description: string; href: string; color: string; e
     category: 'ferramenta',
   },
   {
+    name: '⚡ MC Fleet Monitor',
+    description: 'Status em tempo real dos 12 agentes do Mission Control',
+    href: 'https://2026-02-02-mc-fleet-monitor.vercel.app',
+    external: true,
+    color: 'from-indigo-500 to-purple-600',
+    category: 'ferramenta',
+  },
+  {
     name: '📜 Teleprompter',
     description: 'Roteiros com scroll automático, espelho, timer e modo câmera',
     href: 'https://2026-02-01-teleprompter.vercel.app',
